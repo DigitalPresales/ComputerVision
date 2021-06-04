@@ -1,0 +1,95 @@
+import numpy as np
+import cv2
+
+
+face = cv2.CascadeClassifier(r' Enter File path of haarcascade_frontalface_default.xml')
+
+myimage = cv2.imread(r'Enter File path of digital-images-faces0.jpg')
+gray = cv2.cvtColor(myimage, cv2.COLOR_BGR2GRAY)
+
+faces = face.detectMultiScale(gray, 1.3, 5)
+
+if faces == ():
+    print("there are no faces in the picture")
+
+for (x,y,w,h) in faces:
+    cv2.rectangle(myimage, (x,y), (x+w,y+h), (127,0,255), 2)
+    cv2.imshow('Face is now detected', myimage)
+    cv2.waitKey(0)
+    
+cv2.destroyAllWindows()
+#-------------------------------------------------Second program------------------------------
+import numpy as np
+import cv2
+ 
+getface = cv2.CascadeClassifier(r'Enter File path of haarcascade_frontalface_default.xml')
+geteye = cv2.CascadeClassifier(r'Enter File path of \Haarcascades\haarcascade_eye.xml')
+ 
+myimage = cv2.imread(r'Enter File path of digital-images-faces0.jpg')
+gray = cv2.cvtColor(myimage, cv2.COLOR_BGR2GRAY)
+
+faces = getface.detectMultiScale(gray, 1.3, 5)
+ 
+if faces is ():
+    print("there are no faces in the picture")
+
+for (x,y,w,h) in faces:
+    cv2.rectangle(myimage,(x,y),(x+w,y+h),(127,0,255),2)
+    cv2.imshow('imgage is here, wow',myimage)
+    cv2.waitKey(0)
+    roi_gray = gray[y:y+h, x:x+w]
+    roi_color = myimage[y:y+h, x:x+w]
+    eyes = geteye.detectMultiScale(roi_gray)
+    for (ex,ey,ew,eh) in eyes:
+        cv2.rectangle(roi_color,(ex,ey),(ex+ew,ey+eh),(255,255,0),2)
+        cv2.imshow('next image is processed',myimage)
+        cv2.waitKey(0)
+    
+cv2.destroyAllWindows()
+
+#------------------Third program ----------------------------------------------------
+import cv2
+import numpy as np
+
+face = cv2.CascadeClassifier(r'Enter File path of haarcascade_frontalface_default.xml')
+eye = cv2.CascadeClassifier(r'Enter File path of Haarcascades\haarcascade_eye.xml')
+
+# here we can use data ingestion layer to pull in streaming or event based data from source system
+# to handle huge data volume, we can use kafka or AWS kinesis
+# here once we detect the face we can cross-check that with our image stored in database to see if any match
+# that can help us to trigger next data processing event or action
+
+def face_detector_function(myimage, size=0.5): 
+    gray = cv2.cvtColor(myimage,cv2.COLOR_BGR2GRAY)
+    faces = face.detectMultiScale(gray, 1.3, 5)
+    if faces is ():
+        return myimage
+    
+    for (x,y,w,h) in faces:
+        x = x - 50
+        w = w + 50
+        y = y - 50
+        h = h + 50
+        cv2.rectangle(myimage,(x,y),(x+w,y+h),(255,0,0),2)
+        roi_gray = gray[y:y+h, x:x+w]
+        roi_color = myimage[y:y+h, x:x+w]
+        eyes = eye.detectMultiScale(roi_gray)
+        
+        for (ex,ey,ew,eh) in eyes:
+            cv2.rectangle(roi_color,(ex,ey),(ex+ew,ey+eh),(0,0,255),2) 
+            
+    roi_color = cv2.flip(roi_color,1)
+    return roi_color
+
+cap = cv2.VideoCapture(0)
+
+while True:
+
+    ret, frame = cap.read()
+    cv2.imshow('face detection is done, as shown', face_detector_function(frame))
+    if cv2.waitKey(1) == 13: 
+        break
+##this can be images feed from CCTV camera so this will be fed to real time streamer for us to process videos.
+        
+cap.release()
+cv2.destroyAllWindows()  
